@@ -27,11 +27,11 @@ const {EmbedBuilder} = require('discord.js');
 const perspective = require('./perspective.js');
 
 const emojiMap = {
-  'FLIRTATION': '💋',
+  'FLIRTATION': '🥰',
   'TOXICITY': '🧨',
-  'INSULT': '👊',
-  'INCOHERENT': '🤪',
-  'SPAM': '🐟',
+  'INSULT': '☠',
+  'INCOHERENT': '🤷',
+  'SPAM': '🤖',
 };
 
 const BotIcon = 'https://images-ext-1.discordapp.net/external/vzl3NGWAEK1Te1Gad7T5iMDtCSNZctkSGApvhD6JoxM/https/cdn.discordapp.com/embed/avatars/2.png';
@@ -90,8 +90,10 @@ async function evaluateMessage(message) {
  */
 function getKarma() {
   const scores = [];
+  let ToReturn = '';
   for (const user in users) {
     if (!Object.keys(users[user]).length) continue;
+
     let score = `<@${user}> - `;
     for (const attr in users[user]) {
       score += `${emojiMap[attr]} : ${users[user][attr]}\t`;
@@ -102,16 +104,28 @@ function getKarma() {
   if (!scores.length) {
     return '';
   }
-  return scores.join('\n');
+  if (scores.length === 0) {
+    ToReturn = '';
+  } else {
+    ToReturn = new EmbedBuilder()
+    .setColor('#ffd200')
+    .addFields(
+        { name: 'Karma Leaderboard', value: `${ scores.join('\n') }` }, 
+    )
+    .setTimestamp();
+  }
+  console.log(scores)
+  // return scores.join('\n');
+  return ToReturn
 }
 
 // Create an instance of a Discord client
 const client = new Client({intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,]
-  });
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.MessageContent,
+  GatewayIntentBits.GuildMembers],
+});
 
 client.on('ready', () => {
   console.log('Ready!');
@@ -124,6 +138,7 @@ client.on('interactionCreate', async (interaction) => {
 
   if (commandName === 'ping') {
     await interaction.reply(`Ping: ${client.ws.ping}ms.`);
+
   } else if (commandName === 'serverinfo') {
     const exampleEmbed = new EmbedBuilder()
         .setColor('#ffd200')
@@ -138,6 +153,7 @@ client.on('interactionCreate', async (interaction) => {
         .setFooter({text: `Requested by: ${interaction.user.tag}`, iconURL: 'https://cdn.discordapp.com/avatars/' + interaction.user.id + '/' + interaction.user.avatar + '.png'});
 
     await interaction.reply({embeds: [exampleEmbed]});
+
   } else if (commandName === 'user') {
     const targetUser = interaction.options.getUser('user');
     const userPfp = 'https://cdn.discordapp.com/avatars/' + targetUser.id + '/' + targetUser.avatar + '.png';
@@ -154,12 +170,18 @@ client.on('interactionCreate', async (interaction) => {
         .setFooter({text: `Requested by: ${interaction.user.tag}`, iconURL: 'https://cdn.discordapp.com/avatars/' + interaction.user.id + '/' + interaction.user.avatar + '.png'});
 
     await interaction.reply({embeds: [exampleEmbed]});
+
   } else if (commandName === 'userid') {
     const targetUser = interaction.options.getUser('user');
     await interaction.reply({content: `${targetUser.id}`, ephemeral: true});
+
   } else if (commandName === 'karma') {
     const karma = getKarma();
-    await interaction.reply(karma ? karma : 'No karma yet!');
+    if (typeof(karma) === "string") {
+      await interaction.reply("No karma yet!");
+    } else {
+      await interaction.reply({embeds: [karma]});
+    }
   }
 });
 
@@ -167,7 +189,7 @@ client.on('messageCreate', async (message) => {
   // Ignore messages that aren't from a guild
   // or are from a bot
   if (!message.guild || message.author.bot) return;
-  if (message.content === "") return;
+  if (message.content === '') return;
 
   // If we've never seen a user before, add them to memory
   const userid = message.author.id;
@@ -183,11 +205,11 @@ client.on('messageCreate', async (message) => {
     console.log(err);
   }
   if (shouldKick) {
-    const member = message.member
+    const member = message.member;
 
     kickBaddie(member, message.guild);
     delete users[message.author.id];
-    
+
     message.channel.send(`Kicked user ${message.author.username} from channel`);
     return;
   }
