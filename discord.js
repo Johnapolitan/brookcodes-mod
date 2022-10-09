@@ -35,17 +35,17 @@ const BotIcon = "https://imgs.search.brave.com/gZqaw4czA4iDONF0af4WKZI8o4zgardMO
 const users = {};
 
 /**
- * Kick bad members out of the guild
- * @param {user} user - user to kick
- * @param {guild} guild - guild to kick user from
+ * Mute bad members out of the guild
+ * @param {user} user - user to Mute
+ * @param {guild} guild - guild to Mute user from
  */
-async function kickBaddie(user, guild) {
+async function muteSuspect(user, guild) {
 	if (!user) return;
 	try {
-		await user.kick("Was a jerk");
+		await user.disableCommunicationUntil(Date.now() + (5 * 60 * 1000), 'They deserved it');
 	}
 	catch (err) {
-		console.log(`Could not kick user ${user.author}: ${err}`);
+		console.log(`Could not mute user ${user.author}: ${err}`);
 	}
 }
 
@@ -53,8 +53,8 @@ async function kickBaddie(user, guild) {
  * Analyzes a user's message for attribues
  * and reacts to it.
  * @param {string} message - message the user sent
- * @return {bool} shouldKick - whether or not we should
- * kick the users
+ * @return {bool} shouldMute - whether or not we should
+ * mutes the users
  */
 async function evaluateMessage(message) {
 	let scores;
@@ -76,8 +76,8 @@ async function evaluateMessage(message) {
 				users[userid][attribute] + 1 : 1;
 		}
 	}
-	// Return whether or not we should kick the user
-	return (users[userid]["TOXICITY"] > process.env.KICK_THRESHOLD);
+	// Return whether or not we should mute the user
+	return (users[userid]["TOXICITY"] > process.env.MUTE_THRESHOLD);
 }
 
 /**
@@ -189,20 +189,20 @@ client.on("messageCreate", async (message) => {
 		users[userid] = [];
 	}
 
-	let shouldKick = false;
+	let shouldMute = false;
 	try {
-		shouldKick = await evaluateMessage(message);
+		shouldMute = await evaluateMessage(message);
 	}
 	catch (err) {
 		console.log(err);
 	}
-	if (shouldKick) {
+	if (shouldMute) {
 		const member = message.member;
 
-		kickBaddie(member, message.guild);
+		muteSuspect(member, message.guild);
 		delete users[message.author.id];
 
-		message.channel.send(`Kicked user ${message.author.username} from channel`);
+		message.channel.send(`Muted user ${message.author.username} for 5 minutes.`);
 		return;
 	}
 });
