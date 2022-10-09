@@ -30,7 +30,7 @@ const emojiMap = {
 	"SPAM": "🤖",
 };
 
-const BotIcon = "https://images-ext-1.discordapp.net/external/vzl3NGWAEK1Te1Gad7T5iMDtCSNZctkSGApvhD6JoxM/https/cdn.discordapp.com/embed/avatars/2.png";
+const BotIcon = "https://imgs.search.brave.com/gZqaw4czA4iDONF0af4WKZI8o4zgardMOiuozm0x10k/rs:fit:400:400:1/g:ce/aHR0cHM6Ly9wYnMu/dHdpbWcuY29tL3By/b2ZpbGVfaW1hZ2Vz/Lzk2OTI0NTE5Mzcx/MDA2NzcxNy9xZUN4/X2Fjc180MDB4NDAw/LmpwZw";
 
 const users = {};
 
@@ -139,9 +139,9 @@ client.on("interactionCreate", async (interaction) => {
 			.setTitle("Server Info")
 			.setThumbnail(BotIcon)
 			.addFields(
-				{ name: "Creation Date", value: `${interaction.guild.createdAt.toDateString()}`, inline: true },
-				{ name: "Owner", value: "johnb_tch#5577", inline: true },
-				{ name: "Member Count", value: `${getNumberOfMembers()}`, inline: true },
+				{ name: "Creation Date", value: `${interaction.guild.createdAt.toDateString()}`, inline: false },
+				{ name: "Owner", value: "johnb_tch#5577", inline: false },
+				{ name: "Member Count", value: `${getNumberOfMembers()}`, inline: false },
 			)
 			.setTimestamp()
 			.setFooter({ text: `Requested by: ${interaction.user.tag}`, iconURL: "https://cdn.discordapp.com/avatars/" + interaction.user.id + "/" + interaction.user.avatar + ".png" });
