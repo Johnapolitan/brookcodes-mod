@@ -4,6 +4,7 @@ const { clientId, guildId, token } = require("./config.json");
 const commands = [
 	new SlashCommandBuilder().setName("ping").setDescription("??"),
 	new SlashCommandBuilder().setName("serverinfo").setDescription("Retrieves information on the server"),
+	new SlashCommandBuilder().setName("karma").setDescription("View total karma of users in this channel."),
 	new SlashCommandBuilder()
 		.setName("user")
 		.setDescription("Retries information user provided. ")

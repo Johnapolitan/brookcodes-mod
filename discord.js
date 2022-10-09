@@ -46,12 +46,11 @@ const users = {};
  * @param {guild} guild - guild to kick user from
  */
 async function kickBaddie(user, guild) {
-  const member = guild.member(user);
-  if (!member) return;
+  if (!user) return;
   try {
-    await member.kick('Was a jerk');
+    await user.kick('Was a jerk');
   } catch (err) {
-    console.log(`Could not kick user ${user.username}: ${err}`);
+    console.log(`Could not kick user ${user.author}: ${err}`);
   }
 }
 
@@ -158,6 +157,9 @@ client.on('interactionCreate', async (interaction) => {
   } else if (commandName === 'userid') {
     const targetUser = interaction.options.getUser('user');
     await interaction.reply({content: `${targetUser.id}`, ephemeral: true});
+  } else if (commandName === 'karma') {
+    const karma = getKarma();
+    await interaction.reply(karma ? karma : 'No karma yet!');
   }
 });
 
@@ -181,16 +183,13 @@ client.on('messageCreate', async (message) => {
     console.log(err);
   }
   if (shouldKick) {
-    kickBaddie(message.author, message.guild);
+    const member = message.member
+
+    kickBaddie(member, message.guild);
     delete users[message.author.id];
+    
     message.channel.send(`Kicked user ${message.author.username} from channel`);
     return;
-  }
-
-
-  if (message.content.startsWith('!karma')) {
-    const karma = getKarma(message);
-    message.channel.send(karma ? karma : 'No karma yet!');
   }
 });
 
